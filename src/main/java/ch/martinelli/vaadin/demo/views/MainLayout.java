@@ -1,10 +1,10 @@
 package ch.martinelli.vaadin.demo.views;
 
-import ch.martinelli.vaadin.demo.data.entity.User;
-import ch.martinelli.vaadin.demo.security.AuthenticatedUser;
+import ch.martinelli.vaadin.demo.db.tables.records.SecurityUserRecord;
+import ch.martinelli.vaadin.demo.security.SecurityService;
 import ch.martinelli.vaadin.demo.views.about.AboutView;
+import ch.martinelli.vaadin.demo.views.employee.EmployeeView;
 import ch.martinelli.vaadin.demo.views.helloworld.HelloWorldView;
-import ch.martinelli.vaadin.demo.views.masterdetail.MasterDetailView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -32,53 +32,13 @@ import java.util.Optional;
  */
 public class MainLayout extends AppLayout {
 
-    /**
-     * A simple navigation item component, based on ListItem element.
-     */
-    public static class MenuItemInfo extends ListItem {
-
-        private final Class<? extends Component> view;
-
-        public MenuItemInfo(String menuTitle, String iconClass, Class<? extends Component> view) {
-            this.view = view;
-            RouterLink link = new RouterLink();
-            link.addClassNames("menu-item-link");
-            link.setRoute(view);
-
-            Span text = new Span(menuTitle);
-            text.addClassNames("menu-item-text");
-
-            link.add(new LineAwesomeIcon(iconClass), text);
-            add(link);
-        }
-
-        public Class<?> getView() {
-            return view;
-        }
-
-        /**
-         * Simple wrapper to create icons using LineAwesome iconset. See
-         * https://icons8.com/line-awesome
-         */
-        @NpmPackage(value = "line-awesome", version = "1.3.0")
-        public static class LineAwesomeIcon extends Span {
-            public LineAwesomeIcon(String lineawesomeClassnames) {
-                addClassNames("menu-item-icon");
-                if (!lineawesomeClassnames.isEmpty()) {
-                    addClassNames(lineawesomeClassnames);
-                }
-            }
-        }
-
-    }
-
     private H1 viewTitle;
 
-    private AuthenticatedUser authenticatedUser;
-    private AccessAnnotationChecker accessChecker;
+    private final SecurityService securityService;
+    private final AccessAnnotationChecker accessChecker;
 
-    public MainLayout(AuthenticatedUser authenticatedUser, AccessAnnotationChecker accessChecker) {
-        this.authenticatedUser = authenticatedUser;
+    public MainLayout(SecurityService securityService, AccessAnnotationChecker accessChecker) {
+        this.securityService = securityService;
         this.accessChecker = accessChecker;
 
         setPrimarySection(Section.DRAWER);
@@ -133,10 +93,9 @@ public class MainLayout extends AppLayout {
         return new MenuItemInfo[]{ //
                 new MenuItemInfo("Hello World", "la la-globe", HelloWorldView.class), //
 
-                new MenuItemInfo("Master-Detail", "la la-columns", MasterDetailView.class), //
+                new MenuItemInfo("Employees", "la la-columns", EmployeeView.class), //
 
                 new MenuItemInfo("About", "la la-file", AboutView.class), //
-
         };
     }
 
@@ -144,20 +103,20 @@ public class MainLayout extends AppLayout {
         Footer layout = new Footer();
         layout.addClassNames("footer");
 
-        Optional<User> maybeUser = authenticatedUser.get();
-        if (maybeUser.isPresent()) {
-            User user = maybeUser.get();
+        Optional<SecurityUserRecord> optionalSecurityUserRecord = securityService.getUser();
+        if (optionalSecurityUserRecord.isPresent()) {
+            SecurityUserRecord user = optionalSecurityUserRecord.get();
 
-            Avatar avatar = new Avatar(user.getName(), user.getProfilePictureUrl());
+            Avatar avatar = new Avatar(user.getUsername(), null);
             avatar.addClassNames("me-xs");
 
             ContextMenu userMenu = new ContextMenu(avatar);
             userMenu.setOpenOnClick(true);
             userMenu.addItem("Logout", e -> {
-                authenticatedUser.logout();
+                securityService.logout();
             });
 
-            Span name = new Span(user.getName());
+            Span name = new Span(user.getUsername());
             name.addClassNames("font-medium", "text-s", "text-secondary");
 
             layout.add(avatar, name);
@@ -178,5 +137,45 @@ public class MainLayout extends AppLayout {
     private String getCurrentPageTitle() {
         PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
         return title == null ? "" : title.value();
+    }
+
+    /**
+     * A simple navigation item component, based on ListItem element.
+     */
+    public static class MenuItemInfo extends ListItem {
+
+        private final Class<? extends Component> view;
+
+        public MenuItemInfo(String menuTitle, String iconClass, Class<? extends Component> view) {
+            this.view = view;
+            RouterLink link = new RouterLink();
+            link.addClassNames("menu-item-link");
+            link.setRoute(view);
+
+            Span text = new Span(menuTitle);
+            text.addClassNames("menu-item-text");
+
+            link.add(new LineAwesomeIcon(iconClass), text);
+            add(link);
+        }
+
+        public Class<?> getView() {
+            return view;
+        }
+
+        /**
+         * Simple wrapper to create icons using LineAwesome iconset. See
+         * <a href="https://icons8.com/line-awesome">...</a>
+         */
+        @NpmPackage(value = "line-awesome", version = "1.3.0")
+        public static class LineAwesomeIcon extends Span {
+            public LineAwesomeIcon(String lineawesomeClassnames) {
+                addClassNames("menu-item-icon");
+                if (!lineawesomeClassnames.isEmpty()) {
+                    addClassNames(lineawesomeClassnames);
+                }
+            }
+        }
+
     }
 }

@@ -1,43 +1,45 @@
 package ch.martinelli.vaadin.demo.security;
 
-import ch.martinelli.vaadin.demo.data.entity.User;
-import ch.martinelli.vaadin.demo.data.service.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
+import org.jooq.DSLContext;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import static ch.martinelli.vaadin.demo.db.tables.SecurityGroup.SECURITY_GROUP;
+import static ch.martinelli.vaadin.demo.db.tables.SecurityUser.SECURITY_USER;
+import static ch.martinelli.vaadin.demo.db.tables.UserGroup.USER_GROUP;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final DSLContext dsl;
 
-    @Autowired
-    public UserDetailsServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserDetailsServiceImpl(DSLContext dsl) {
+        this.dsl = dsl;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("No user present with username: " + username);
+        var securityUserRecord = dsl
+                .selectFrom(SECURITY_USER)
+                .where(SECURITY_USER.USERNAME.eq(username))
+                .fetchOne();
+
+        if (securityUserRecord != null) {
+            var groups = dsl
+                    .select(USER_GROUP.securityGroup().NAME)
+                    .from(USER_GROUP)
+                    .fetch();
+
+            return new User(securityUserRecord.getUsername(), securityUserRecord.getSecret(),
+                    groups.stream()
+                            .map(group -> new SimpleGrantedAuthority("ROLE_" + group.getValue(SECURITY_GROUP.NAME)))
+                            .toList());
         } else {
-            return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getHashedPassword(),
-                    getAuthorities(user));
+            throw new UsernameNotFoundException(username);
         }
     }
-
-    private static List<GrantedAuthority> getAuthorities(User user) {
-        return user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                .collect(Collectors.toList());
-
-    }
-
 }

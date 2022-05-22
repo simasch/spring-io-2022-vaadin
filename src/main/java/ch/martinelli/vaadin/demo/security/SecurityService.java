@@ -1,9 +1,9 @@
 package ch.martinelli.vaadin.demo.security;
 
-import ch.martinelli.vaadin.demo.data.entity.User;
-import ch.martinelli.vaadin.demo.data.service.UserRepository;
+import ch.martinelli.vaadin.demo.db.tables.records.SecurityUserRecord;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinServletRequest;
+import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,14 +14,16 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-@Component
-public class AuthenticatedUser {
+import static ch.martinelli.vaadin.demo.db.tables.SecurityUser.SECURITY_USER;
 
-    private final UserRepository userRepository;
+@Component
+public class SecurityService {
+
+    private final DSLContext ctx;
 
     @Autowired
-    public AuthenticatedUser(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public SecurityService(DSLContext ctx) {
+        this.ctx = ctx;
     }
 
     private Optional<Authentication> getAuthentication() {
@@ -30,8 +32,8 @@ public class AuthenticatedUser {
                 .filter(authentication -> !(authentication instanceof AnonymousAuthenticationToken));
     }
 
-    public Optional<User> get() {
-        return getAuthentication().map(authentication -> userRepository.findByUsername(authentication.getName()));
+    public Optional<SecurityUserRecord> getUser() {
+        return getAuthentication().map(authentication -> ctx.selectFrom(SECURITY_USER).where(SECURITY_USER.USERNAME.eq(authentication.getName())).fetchOne());
     }
 
     public void logout() {

@@ -10,9 +10,9 @@ import com.vaadin.flow.router.Route;
 
 import javax.annotation.security.PermitAll;
 
+@PermitAll
 @PageTitle("About")
 @Route(value = "about", layout = MainLayout.class)
-@PermitAll
 public class AboutView extends VerticalLayout {
 
     public AboutView() {
