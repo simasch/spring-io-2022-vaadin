@@ -85,7 +85,10 @@ public class EmployeeView extends VerticalLayout {
             }
         });
 
-        employeeForm.setChangeHandler(() -> dataProvider.refreshAll());
+        employeeForm.setChangeHandler(() -> {
+            dataProvider.refreshAll();
+            grid.select(null);
+        });
 
         var main = new HorizontalLayout(grid, employeeForm);
         main.setSizeFull();
