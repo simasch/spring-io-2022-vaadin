@@ -51,6 +51,7 @@ public class EmployeeView extends VerticalLayout {
         var toolbar = new HorizontalLayout(filter, clear, add);
 
         grid = new Grid<>();
+        grid.setId("employee-grid");
         grid.addColumn(VEmployeeRecord::getEmployeeId).setHeader("ID").setSortable(true).setSortProperty(V_EMPLOYEE.EMPLOYEE_ID.getName());
         grid.addColumn(VEmployeeRecord::getEmployeeName).setHeader("Name").setSortable(true).setSortProperty(V_EMPLOYEE.EMPLOYEE_NAME.getName());
         grid.addColumn(VEmployeeRecord::getDepartmentName).setHeader("Department").setSortable(true).setSortProperty(V_EMPLOYEE.DEPARTMENT_NAME.getName());
