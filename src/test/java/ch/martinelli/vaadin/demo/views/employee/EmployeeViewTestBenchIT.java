@@ -7,6 +7,7 @@ import com.vaadin.flow.component.textfield.testbench.PasswordFieldElement;
 import com.vaadin.flow.component.textfield.testbench.TextFieldElement;
 import com.vaadin.testbench.TestBenchTestCase;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -35,6 +36,11 @@ public class EmployeeViewTestBenchIT extends TestBenchTestCase {
 
         GridTHTDElement cell = grid.getCell(0, 1);
         assertEquals("Hermione Compton", cell.getText());
+    }
+
+    @After
+    public void tearDown() {
+        getDriver().quit();
     }
 
 }

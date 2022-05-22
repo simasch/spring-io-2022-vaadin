@@ -5,6 +5,7 @@ import com.vaadin.flow.component.html.testbench.LabelElement;
 import com.vaadin.flow.component.textfield.testbench.TextFieldElement;
 import com.vaadin.testbench.TestBenchTestCase;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +29,11 @@ public class HelloWorldViewTestBenchIT extends TestBenchTestCase {
         LabelElement text = $(LabelElement.class).id("text");
 
         Assert.assertEquals("Hello World", text.getText());
+    }
+
+    @After
+    public void tearDown() {
+        getDriver().quit();
     }
 
 }
