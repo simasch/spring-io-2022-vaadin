@@ -8,6 +8,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
@@ -52,9 +53,18 @@ public class EmployeeView extends VerticalLayout {
 
         grid = new Grid<>();
         grid.setId("employee-grid");
-        grid.addColumn(VEmployeeRecord::getEmployeeId).setHeader("ID").setSortable(true).setSortProperty(V_EMPLOYEE.EMPLOYEE_ID.getName());
-        grid.addColumn(VEmployeeRecord::getEmployeeName).setHeader("Name").setSortable(true).setSortProperty(V_EMPLOYEE.EMPLOYEE_NAME.getName());
-        grid.addColumn(VEmployeeRecord::getDepartmentName).setHeader("Department").setSortable(true).setSortProperty(V_EMPLOYEE.DEPARTMENT_NAME.getName());
+        grid.addColumn(VEmployeeRecord::getEmployeeId)
+                .setHeader("ID")
+                .setSortable(true)
+                .setSortProperty(V_EMPLOYEE.EMPLOYEE_ID.getName());
+        grid.addColumn(VEmployeeRecord::getEmployeeName)
+                .setHeader("Name")
+                .setSortable(true)
+                .setSortProperty(V_EMPLOYEE.EMPLOYEE_NAME.getName());
+        grid.addColumn(VEmployeeRecord::getDepartmentName)
+                .setHeader("Department")
+                .setSortable(true)
+                .setSortProperty(V_EMPLOYEE.DEPARTMENT_NAME.getName());
 
         grid.setSizeFull();
 
@@ -91,7 +101,8 @@ public class EmployeeView extends VerticalLayout {
             grid.select(null);
         });
 
-        var main = new HorizontalLayout(grid, employeeForm);
+        var main = new SplitLayout(grid, employeeForm);
+        main.setId("main-split-layout");
         main.setSizeFull();
 
         add(toolbar, main);

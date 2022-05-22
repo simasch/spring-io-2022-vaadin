@@ -1,7 +1,6 @@
 # Spring I/O 2022
 
-This project can be used as a starting point to create your own Vaadin application with Spring Boot.
-It contains all the necessary configuration and some placeholder files to get you started.
+This is an example application to demonstrate Vaadin in combination with jOOQ.
 
 ## Running the application
 
@@ -34,6 +33,8 @@ Once the JAR file is built, you can run it using
 
 ## Useful links
 
+### Vaadin
+
 - Read the documentation at [vaadin.com/docs](https://vaadin.com/docs).
 - Follow the tutorials at [vaadin.com/tutorials](https://vaadin.com/tutorials).
 - Watch training videos and get certified at [vaadin.com/learn/training](https://vaadin.com/learn/training).
@@ -46,61 +47,6 @@ Once the JAR file is built, you can run it using
 - Ask questions on [Stack Overflow](https://stackoverflow.com/questions/tagged/vaadin) or join our [Discord channel](https://discord.gg/MYFq5RTbBn).
 - Report issues, create pull requests in [GitHub](https://github.com/vaadin/platform).
 
+### jOOQ
 
-## Deploying using Docker
-
-To build the Dockerized version of the project, run
-
-```
-docker build . -t springio2022:latest
-```
-
-Once the Docker image is correctly built, you can test it locally using
-
-```
-docker run -p 8080:8080 springio2022:latest
-```
-
-
-## Deploying using Kubernetes
-
-We assume here that you have the Kubernetes cluster from Docker Desktop running (can be enabled in the settings).
-
-First build the Docker image for your application. You then need to make the Docker image available to you cluster. With Docker Desktop Kubernetes, this happens automatically. With Minikube, you can run `eval $(minikube docker-env)` and then build the image to make it available. For other clusters, you need to publish to a Docker repository or check the documentation for the cluster.
-
-The included `kubernetes.yaml` sets up a deployment with 2 pods (server instances) and a load balancer service. You can deploy the application on a Kubernetes cluster using
-
-```
-kubectl apply -f kubernetes.yaml
-```
-
-If everything works, you can access your application by opening http://localhost:8000/.
-If you have something else running on port 8000, you need to change the load balancer port in `kubernetes.yaml`.
-
-Tip: If you want to understand which pod your requests go to, you can add the value of `VaadinServletRequest.getCurrent().getLocalAddr()` somewhere in your UI.
-
-### Troubleshooting
-
-If something is not working, you can try one of the following commands to see what is deployed and their status.
-
-```
-kubectl get pods
-kubectl get services
-kubectl get deployments
-```
-
-If the pods say `Container image "springio2022:latest" is not present with pull policy of Never` then you have not built your application using Docker or there is a mismatch in the name. Use `docker images ls` to see which images are available.
-
-If you need even more information, you can run
-
-```
-kubectl cluster-info dump
-```
-
-that will probably give you too much information but might reveal the cause of a problem.
-
-If you want to remove your whole deployment and start over, run
-
-```
-kubectl delete -f kubernetes.yaml
-```
+- Read the documentation at [jooq.org](https://jooq.org)

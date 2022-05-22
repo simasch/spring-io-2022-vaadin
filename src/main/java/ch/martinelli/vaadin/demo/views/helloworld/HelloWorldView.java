@@ -18,8 +18,6 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 public class HelloWorldView extends VerticalLayout {
 
     public HelloWorldView() {
-        setMargin(true);
-
         var name = new TextField("Your name");
         name.setId("name");
 

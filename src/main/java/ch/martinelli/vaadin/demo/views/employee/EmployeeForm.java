@@ -36,7 +36,7 @@ public class EmployeeForm extends FormLayout {
 
     private final Binder<EmployeeRecord> binder = new Binder<>(EmployeeRecord.class);
     private final TextField name;
-    private final ComboBox<DepartmentRecord> departmentId;
+    private final ComboBox<DepartmentRecord> department;
     private final Button save;
     private final Button delete;
     private EmployeeRecord employee;
@@ -46,6 +46,8 @@ public class EmployeeForm extends FormLayout {
     public EmployeeForm(DSLContext ctx, TransactionTemplate transactionTemplate) {
         this.ctx = ctx;
 
+        setClassName("editor");
+
         setResponsiveSteps(new ResponsiveStep("0", 1));
 
         departments = ctx.selectFrom(DEPARTMENT).orderBy(DEPARTMENT.NAME).fetch();
@@ -54,15 +56,14 @@ public class EmployeeForm extends FormLayout {
 
         var id = new TextField("Id");
         name = new TextField("Name");
-        var age = new TextField("Age");
+        var salary = new TextField("Salary");
 
-        departmentId = new ComboBox<DepartmentRecord>("Department");
-        departmentId.setLabel("Department");
-        departmentId.setItemLabelGenerator(DepartmentRecord::getName);
-        departmentId.setRequired(true);
+        department = new ComboBox<>("Department");
+        department.setItemLabelGenerator(DepartmentRecord::getName);
+        department.setRequired(true);
 
-        departmentId.addValueChangeListener(event -> {
-            DepartmentRecord department = departmentId.getValue();
+        department.addValueChangeListener(event -> {
+            var department = this.department.getValue();
             if (department != null) {
                 employee.setDepartmentId(department.getId());
             }
@@ -78,7 +79,7 @@ public class EmployeeForm extends FormLayout {
         delete.setEnabled(false);
         delete.addClickListener(this::delete);
 
-        add(id, name, age, departmentId, new HorizontalLayout(save, delete));
+        add(id, name, salary, department, new HorizontalLayout(save, delete));
 
         binder.forField(id)
                 .withNullRepresentation("")
@@ -89,13 +90,15 @@ public class EmployeeForm extends FormLayout {
                 .asRequired()
                 .bind(EmployeeRecord::getName, EmployeeRecord::setName);
 
-        binder.forField(age)
+        binder.forField(salary)
                 .withNullRepresentation("")
-                .withConverter(new StringToIntegerConverter(0, "Integers only"))
-                .withValidator((value, context) -> value == null || value > 0 ? ValidationResult.ok() : ValidationResult.error("Value must be greater than 0"))
-                .bind(EmployeeRecord::getAge, EmployeeRecord::setAge);
+                .withConverter(new StringToIntegerConverter(0, "Must be a number"))
+                .withValidator((value, context) -> value == null || value > 0
+                        ? ValidationResult.ok()
+                        : ValidationResult.error("Number must be greater than 0"))
+                .bind(EmployeeRecord::getSalary, EmployeeRecord::setSalary);
 
-        binder.forField(departmentId)
+        binder.forField(department)
                 .asRequired()
                 .withConverter(new Converter<DepartmentRecord, Integer>() {
                     @Override
@@ -119,7 +122,7 @@ public class EmployeeForm extends FormLayout {
     }
 
     public void setEmployee(EmployeeRecord employee) {
-        departmentId.setItems(departments);
+        department.setItems(departments);
 
         this.employee = employee;
         binder.setBean(employee);

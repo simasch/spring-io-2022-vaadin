@@ -1,15 +1,19 @@
+create sequence department_seq;
+
 create table department
 (
-    id   int primary key auto_increment,
+    id   integer      not null default nextval('security_group_seq') primary key,
     name varchar(255) not null
 );
 
+create sequence employee_seq;
+
 create table employee
 (
-    id            int primary key auto_increment,
+    id            integer      not null default nextval('security_group_seq') primary key,
     name          varchar(255) not null,
-    age           integer,
-    department_id int          not null,
+    salary        integer,
+    department_id integer      not null,
 
     foreign key (department_id) references department (id)
 );

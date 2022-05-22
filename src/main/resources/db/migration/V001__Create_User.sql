@@ -2,7 +2,7 @@ create sequence security_group_seq;
 
 create table security_group
 (
-    id   bigint       not null default nextval('security_group_seq') primary key,
+    id   integer      not null default nextval('security_group_seq') primary key,
 
     name varchar(255) not null
 );
@@ -14,7 +14,7 @@ create sequence security_user_seq;
 
 create table security_user
 (
-    id       bigint       not null default nextval('security_user_seq') primary key,
+    id       integer      not null default nextval('security_user_seq') primary key,
 
     username varchar(255) not null,
     secret   varchar(255) not null
@@ -25,8 +25,8 @@ alter table security_user
 
 create table user_group
 (
-    user_id  bigint not null,
-    group_id bigint not null
+    user_id  integer not null,
+    group_id integer not null
 );
 
 alter table user_group
