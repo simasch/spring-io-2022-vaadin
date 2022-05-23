@@ -26,8 +26,7 @@ class EmployeeViewKaribuIT extends KaribuTest {
     void check_grid_content() {
         Grid<VEmployeeRecord> athletesGrid = _get(Grid.class, spec -> spec.withId("employee-grid"));
 
-        assertThat(GridKt._size(athletesGrid)).isEqualTo(2);
-        assertThat(GridKt._get(athletesGrid, 0).getEmployeeName()).isEqualTo("Hermione Compton");
+        assertThat(GridKt._size(athletesGrid)).isEqualTo(50);
     }
 
 }

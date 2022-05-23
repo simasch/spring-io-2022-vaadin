@@ -6,6 +6,7 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -20,8 +21,6 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import org.jooq.DSLContext;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.List;
-
 import static ch.martinelli.vaadin.demo.db.tables.Department.DEPARTMENT;
 
 
@@ -32,11 +31,8 @@ public class EmployeeForm extends FormLayout {
     private final DSLContext ctx;
     private final TransactionTemplate transactionTemplate;
 
-    private final List<DepartmentRecord> departments;
-
     private final Binder<EmployeeRecord> binder = new Binder<>(EmployeeRecord.class);
-    private final TextField name;
-    private final ComboBox<DepartmentRecord> department;
+    private final TextField lastName;
     private final Button save;
     private final Button delete;
     private EmployeeRecord employee;
@@ -47,49 +43,32 @@ public class EmployeeForm extends FormLayout {
         this.ctx = ctx;
 
         setClassName("editor");
-
         setResponsiveSteps(new ResponsiveStep("0", 1));
 
-        departments = ctx.selectFrom(DEPARTMENT).orderBy(DEPARTMENT.NAME).fetch();
         this.transactionTemplate = transactionTemplate;
 
-
         var id = new TextField("Id");
-        name = new TextField("Name");
-        var salary = new TextField("Salary");
-
-        department = new ComboBox<>("Department");
-        department.setItemLabelGenerator(DepartmentRecord::getName);
-        department.setRequired(true);
-
-        department.addValueChangeListener(event -> {
-            var department = this.department.getValue();
-            if (department != null) {
-                employee.setDepartmentId(department.getId());
-            }
-        });
-
-        save = new Button("Save");
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        save.setEnabled(false);
-        save.addClickListener(this::save);
-
-
-        delete = new Button("Delete");
-        delete.setEnabled(false);
-        delete.addClickListener(this::delete);
-
-        add(id, name, salary, department, new HorizontalLayout(save, delete));
-
         binder.forField(id)
                 .withNullRepresentation("")
                 .withConverter(new StringToIntegerConverter(0, "Integers only"))
                 .bind(EmployeeRecord::getId, null);
 
-        binder.forField(name)
+        lastName = new TextField("Last Name");
+        binder.forField(lastName)
                 .asRequired()
-                .bind(EmployeeRecord::getName, EmployeeRecord::setName);
+                .bind(EmployeeRecord::getLastName, EmployeeRecord::setLastName);
 
+        var firstName = new TextField("First Name");
+        binder.forField(firstName)
+                .asRequired()
+                .bind(EmployeeRecord::getFirstName, EmployeeRecord::setFirstName);
+
+        var dateOfBirth = new DatePicker("Date of Birth");
+        binder.forField(dateOfBirth)
+                .asRequired()
+                .bind(EmployeeRecord::getDateOfBirth, EmployeeRecord::setDateOfBirth);
+
+        var salary = new TextField("Salary");
         binder.forField(salary)
                 .withNullRepresentation("")
                 .withConverter(new StringToIntegerConverter(0, "Must be a number"))
@@ -98,6 +77,8 @@ public class EmployeeForm extends FormLayout {
                         : ValidationResult.error("Number must be greater than 0"))
                 .bind(EmployeeRecord::getSalary, EmployeeRecord::setSalary);
 
+        var department = new ComboBox<DepartmentRecord>("Department");
+        department.setItemLabelGenerator(DepartmentRecord::getName);
         binder.forField(department)
                 .asRequired()
                 .withConverter(new Converter<DepartmentRecord, Integer>() {
@@ -111,23 +92,31 @@ public class EmployeeForm extends FormLayout {
                     }
 
                     @Override
-                    public DepartmentRecord convertToPresentation(Integer integer, ValueContext valueContext) {
-                        return departments.stream()
-                                .filter(departmentRecord -> departmentRecord.getId().equals(integer))
-                                .findFirst()
-                                .orElse(new DepartmentRecord(null, ""));
+                    public DepartmentRecord convertToPresentation(Integer id, ValueContext valueContext) {
+                        return ctx.selectFrom(DEPARTMENT).where(DEPARTMENT.ID.eq(id)).fetchOptional().orElse(new DepartmentRecord(null, ""));
                     }
                 })
                 .bind(EmployeeRecord::getDepartmentId, EmployeeRecord::setDepartmentId);
+
+        department.setItems(ctx.selectFrom(DEPARTMENT).orderBy(DEPARTMENT.NAME).fetch());
+
+        save = new Button("Save");
+        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        save.setEnabled(false);
+        save.addClickListener(this::save);
+
+        delete = new Button("Delete");
+        delete.setEnabled(false);
+        delete.addClickListener(this::delete);
+
+        add(id, firstName, lastName, dateOfBirth, salary, department, new HorizontalLayout(save, delete));
     }
 
     public void setEmployee(EmployeeRecord employee) {
-        department.setItems(departments);
-
         this.employee = employee;
         binder.setBean(employee);
 
-        name.focus();
+        lastName.focus();
 
         save.setEnabled(true);
         delete.setEnabled(true);

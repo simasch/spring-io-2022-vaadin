@@ -4,7 +4,7 @@ create table security_group
 (
     id   integer      not null default nextval('security_group_seq') primary key,
 
-    name varchar(255) not null
+    name varchar not null
 );
 
 alter table security_group
@@ -16,8 +16,8 @@ create table security_user
 (
     id       integer      not null default nextval('security_user_seq') primary key,
 
-    username varchar(255) not null,
-    secret   varchar(255) not null
+    username varchar not null,
+    secret   varchar not null
 );
 
 alter table security_user

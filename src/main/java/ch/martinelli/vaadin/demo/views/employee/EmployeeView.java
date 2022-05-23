@@ -5,7 +5,6 @@ import ch.martinelli.vaadin.demo.db.tables.records.VEmployeeRecord;
 import ch.martinelli.vaadin.demo.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
@@ -38,9 +37,11 @@ public class EmployeeView extends VerticalLayout {
     public EmployeeView(EmployeeForm employeeForm, DSLContext ctx) {
         filter.setPlaceholder("Filter by name...");
         filter.setValueChangeMode(ValueChangeMode.EAGER);
-        filter.addValueChangeListener(e -> dataProvider.setFilter(lower(V_EMPLOYEE.EMPLOYEE_NAME).like("%" + e.getValue().toLowerCase() + "%")));
+        filter.addValueChangeListener(e -> dataProvider.setFilter(
+                lower(V_EMPLOYEE.EMPLOYEE_FIRST_NAME).like("%" + e.getValue().toLowerCase() + "%")
+                        .or(lower(V_EMPLOYEE.EMPLOYEE_LAST_NAME).like("%" + e.getValue().toLowerCase() + "%"))));
 
-        var clear = new Button(VaadinIcon.CLOSE_CIRCLE.create());
+        var clear = new Button("Clear filter");
         clear.addClickListener(e -> filter.clear());
 
         var add = new Button("Add new employee");
@@ -50,6 +51,7 @@ public class EmployeeView extends VerticalLayout {
         });
 
         var toolbar = new HorizontalLayout(filter, clear, add);
+        toolbar.setWidthFull();
 
         grid = new Grid<>();
         grid.setId("employee-grid");
@@ -57,10 +59,14 @@ public class EmployeeView extends VerticalLayout {
                 .setHeader("ID")
                 .setSortable(true)
                 .setSortProperty(V_EMPLOYEE.EMPLOYEE_ID.getName());
-        grid.addColumn(VEmployeeRecord::getEmployeeName)
-                .setHeader("Name")
+        grid.addColumn(VEmployeeRecord::getEmployeeFirstName)
+                .setHeader("Last Name")
                 .setSortable(true)
-                .setSortProperty(V_EMPLOYEE.EMPLOYEE_NAME.getName());
+                .setSortProperty(V_EMPLOYEE.EMPLOYEE_LAST_NAME.getName());
+        grid.addColumn(VEmployeeRecord::getEmployeeFirstName)
+                .setHeader("First Name")
+                .setSortable(true)
+                .setSortProperty(V_EMPLOYEE.EMPLOYEE_FIRST_NAME.getName());
         grid.addColumn(VEmployeeRecord::getDepartmentName)
                 .setHeader("Department")
                 .setSortable(true)
@@ -102,6 +108,7 @@ public class EmployeeView extends VerticalLayout {
         });
 
         var main = new SplitLayout(grid, employeeForm);
+        main.setSplitterPosition(70);
         main.setId("main-split-layout");
         main.setSizeFull();
 

@@ -1,6 +1,8 @@
 package ch.martinelli.vaadin.demo.generator;
 
 import ch.martinelli.vaadin.demo.db.tables.Employee;
+import com.devskiller.jfairy.Fairy;
+import com.devskiller.jfairy.producer.person.Person;
 import org.jooq.DSLContext;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -26,15 +28,22 @@ public class DataGenerator {
             itDepartment.setName("IT");
             itDepartment.store();
 
-            var hermioneCompton = ctx.newRecord(Employee.EMPLOYEE);
-            hermioneCompton.setName("Hermione Compton");
-            hermioneCompton.setDepartmentId(itDepartment.getId());
-            hermioneCompton.store();
+            var hrDepartment = ctx.newRecord(DEPARTMENT);
+            hrDepartment.setName("HR");
+            hrDepartment.store();
 
-            var lysandraStevens = ctx.newRecord(Employee.EMPLOYEE);
-            lysandraStevens.setName("Lysandra Stevens");
-            lysandraStevens.setDepartmentId(itDepartment.getId());
-            lysandraStevens.store();
+            Fairy fairy = Fairy.create();
+
+            for (int i = 0; i < 50; i++) {
+                Person person = fairy.person();
+
+                var employee = ctx.newRecord(Employee.EMPLOYEE);
+                employee.setFirstName(person.getFirstName());
+                employee.setLastName(person.getLastName());
+                employee.setDateOfBirth(person.getDateOfBirth());
+                employee.setDepartmentId(i % 5 == 0 ? hrDepartment.getId() : itDepartment.getId());
+                employee.store();
+            }
         }
     }
 }
