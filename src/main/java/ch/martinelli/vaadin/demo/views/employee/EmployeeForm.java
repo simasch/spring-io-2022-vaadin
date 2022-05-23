@@ -109,7 +109,7 @@ public class EmployeeForm extends FormLayout {
         delete.setEnabled(false);
         delete.addClickListener(this::delete);
 
-        add(id, firstName, lastName, dateOfBirth, salary, department, new HorizontalLayout(save, delete));
+        add(id, lastName, firstName, dateOfBirth, salary, department, new HorizontalLayout(save, delete));
     }
 
     public void setEmployee(EmployeeRecord employee) {
