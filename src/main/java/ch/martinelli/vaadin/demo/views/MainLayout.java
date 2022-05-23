@@ -112,9 +112,7 @@ public class MainLayout extends AppLayout {
 
             ContextMenu userMenu = new ContextMenu(avatar);
             userMenu.setOpenOnClick(true);
-            userMenu.addItem("Logout", e -> {
-                securityService.logout();
-            });
+            userMenu.addItem("Logout", e -> securityService.logout());
 
             Span name = new Span(user.getUsername());
             name.addClassNames("font-medium", "text-s", "text-secondary");

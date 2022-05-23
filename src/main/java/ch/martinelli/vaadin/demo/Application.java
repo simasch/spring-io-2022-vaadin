@@ -10,7 +10,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 
 @SpringBootApplication
 @Theme(value = "springio2022")
-@PWA(name = "Spring I/O 2022", shortName = "Spring I/O 2022", offlineResources = {})
+@PWA(name = "Spring I/O 2022", shortName = "Spring I/O 2022")
 @NpmPackage(value = "line-awesome", version = "1.3.0")
 public class Application extends SpringBootServletInitializer implements AppShellConfigurator {
 

@@ -15,6 +15,7 @@ public class EmployeeGrid extends Grid<VEmployeeRecord> {
 
     private final ConfigurableFilterDataProvider<VEmployeeRecord, Void, Condition> dataProvider;
 
+    @SuppressWarnings("ConstantConditions")
     public EmployeeGrid(DSLContext ctx) {
         setId("employee-grid");
         setSizeFull();
