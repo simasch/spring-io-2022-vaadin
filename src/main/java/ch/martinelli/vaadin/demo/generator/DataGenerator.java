@@ -34,7 +34,7 @@ public class DataGenerator {
 
             Fairy fairy = Fairy.create();
 
-            for (int i = 0; i < 50; i++) {
+            for (int i = 0; i < 100; i++) {
                 Person person = fairy.person();
 
                 var employee = ctx.newRecord(Employee.EMPLOYEE);
