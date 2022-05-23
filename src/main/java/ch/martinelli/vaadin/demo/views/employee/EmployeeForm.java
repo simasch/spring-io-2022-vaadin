@@ -8,6 +8,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -16,20 +17,16 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
-import com.vaadin.flow.spring.annotation.SpringComponent;
-import com.vaadin.flow.spring.annotation.UIScope;
 import org.jooq.DSLContext;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import static ch.martinelli.vaadin.demo.db.tables.Department.DEPARTMENT;
 
 
-@UIScope
-@SpringComponent
 public class EmployeeForm extends FormLayout {
 
     private final DSLContext ctx;
-    private final TransactionTemplate transactionTemplate;
+    private final TransactionTemplate trx;
 
     private final Binder<EmployeeRecord> binder = new Binder<>(EmployeeRecord.class);
     private final TextField lastName;
@@ -39,13 +36,12 @@ public class EmployeeForm extends FormLayout {
 
     private ChangeHandler changeHandler;
 
-    public EmployeeForm(DSLContext ctx, TransactionTemplate transactionTemplate) {
+    public EmployeeForm(DSLContext ctx, TransactionTemplate trx) {
         this.ctx = ctx;
+        this.trx = trx;
 
         setClassName("editor");
         setResponsiveSteps(new ResponsiveStep("0", 1));
-
-        this.transactionTemplate = transactionTemplate;
 
         var id = new TextField("Id");
         binder.forField(id)
@@ -127,25 +123,11 @@ public class EmployeeForm extends FormLayout {
     }
 
     private void save(ClickEvent<Button> event) {
-        transactionTemplate.executeWithoutResult(transactionStatus -> {
-            if (binder.validate().isOk()) {
+        if (binder.validate().isOk()) {
+            trx.executeWithoutResult(status -> {
                 ctx.attach(employee);
                 employee.store();
-
-                save.setEnabled(false);
-                delete.setEnabled(false);
-
-                binder.setBean(null);
-
-                changeHandler.onChange();
-            }
-        });
-    }
-
-    private void delete(ClickEvent<Button> event) {
-        transactionTemplate.executeWithoutResult(transactionStatus -> {
-            ctx.attach(employee);
-            employee.delete();
+            });
 
             save.setEnabled(false);
             delete.setEnabled(false);
@@ -153,7 +135,23 @@ public class EmployeeForm extends FormLayout {
             binder.setBean(null);
 
             changeHandler.onChange();
+
+            Notification.show("Employee saved");
+        }
+    }
+
+    private void delete(ClickEvent<Button> event) {
+        trx.executeWithoutResult(status -> {
+            ctx.attach(employee);
+            employee.delete();
         });
+
+        save.setEnabled(false);
+        delete.setEnabled(false);
+
+        binder.setBean(null);
+
+        changeHandler.onChange();
     }
 
     public interface ChangeHandler {
