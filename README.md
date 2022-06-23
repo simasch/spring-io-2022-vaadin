@@ -4,6 +4,8 @@ This is an example application to demonstrate Vaadin in combination with jOOQ.
 
 ## Running the application
 
+**Make sure to run at least mvnw compile to generate the jOOQ classes.**
+
 The project is a standard Maven project. To run it from the command line,
 type `mvnw` (Windows), or `./mvnw` (Mac & Linux), then open
 http://localhost:8080 in your browser.
