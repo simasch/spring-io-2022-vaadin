@@ -57,8 +57,8 @@ public class EmployeeGrid extends Grid<VEmployeeRecord> {
     }
 
     public void refreshAll() {
-        select(null);
         dataProvider.refreshAll();
+        //select(null);
     }
 
     public void filter(Condition condition) {
